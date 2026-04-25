@@ -96,3 +96,13 @@ Este proyecto sigue estándares estrictos de seguridad:
 ## 🤝 Contribuir
 
 Si deseas proponer mejoras, por favor revisa nuestra [Guía de Contribución](https://github.com/mcphub-ec/hub/blob/main/CONTRIBUTING.md) en el repositorio central. ¡Todos los Pull Requests que pasen los checks de CI/CD son bienvenidos!
+
+---
+
+## 🏢 Desarrollado y Respaldado por
+
+Este ecosistema de código abierto es orgullosamente creado y mantenido por **UPGRADE-EC S.A.S**.
+
+Si buscas implementar estas tecnologías a escala corporativa, explorar nuestras soluciones comerciales de facturación listas para usar, o necesitas consultoría experta en automatización con IA, visítanos en:
+
+🌐 [**upgrade.ec**](https://upgrade.ec/)
