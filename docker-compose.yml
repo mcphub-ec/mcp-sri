@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  signing-service:
+    build:
+      context: ./signing-service
+      dockerfile: Dockerfile
+    container_name: sri_signing_java_service
+    ports:
+      - "18081:18081"
+    restart: unless-stopped
+    environment:
+      - SERVER_PORT=18081
+      - SPRING_PROFILES_ACTIVE=prod
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:18081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sri_mcp_python_server
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    environment:
+      - SIGNING_SERVICE_URL=http://signing-service:18081
+      # Se asume que el usuario inyectará el resto de las variables mediante un .env o directamente
+    depends_on:
+      signing-service:
+        condition: service_healthy

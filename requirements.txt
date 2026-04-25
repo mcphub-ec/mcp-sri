@@ -1,0 +1,8 @@
+fastmcp
+mcp
+httpx
+python-dotenv
+uvicorn
+lxml
+cryptography
+zeep
