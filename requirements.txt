@@ -6,3 +6,4 @@ uvicorn
 lxml
 cryptography
 zeep
+reportlab

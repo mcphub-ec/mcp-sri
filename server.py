@@ -1330,6 +1330,117 @@ def consultar_informacion_ruc(
 
 
 # ==============================================================================
+# Expansión de Herramientas Utilitarias (SRI / Contabilidad / Nómina)
+# ==============================================================================
+
+from schemas.sri_models import TipoContribuyente, AtsRequest
+from services.taxes import calcular_retencion_renta, calcular_rol_pagos
+from services.xml_parser import parsear_xml_sri, generar_estructura_ats
+from services.validation import analizar_identificacion_y_plazos, verificar_estado_tributario, consultar_estado_sri
+from services.pdf_generator import generar_pdf_ride
+
+@mcp.tool()
+def calcular_retencion_mcp(
+    tipo_contribuyente_emisor: str,
+    tipo_contribuyente_receptor: str,
+    codigo_concepto: str,
+    monto_base: float
+) -> dict:
+    """
+    Calcula los porcentajes y valores de retención en la fuente e IVA.
+    
+    REQUIRED PARAMETERS:
+      tipo_contribuyente_emisor (str): "PERSONA_NATURAL", "SOCIEDAD", "CONTRIBUYENTE_ESPECIAL", "ENTIDAD_PUBLICA"
+      tipo_contribuyente_receptor (str): "PERSONA_NATURAL", "SOCIEDAD", "CONTRIBUYENTE_ESPECIAL", "ENTIDAD_PUBLICA"
+      codigo_concepto (str): Ej: "312", "303", "343"
+      monto_base (float): Base imponible sobre la cual calcular la retención.
+    """
+    try:
+        emisor = TipoContribuyente(tipo_contribuyente_emisor)
+        receptor = TipoContribuyente(tipo_contribuyente_receptor)
+        return calcular_retencion_renta(emisor, receptor, codigo_concepto, monto_base)
+    except ValueError as e:
+        return {"error": str(e)}
+
+@mcp.tool()
+def calcular_rol_pagos_mcp(
+    sueldo_base: float,
+    dias_trabajados: int = 30,
+    horas_extras: float = 0.0
+) -> dict:
+    """
+    Calcula determinísticamente un rol de pagos básico.
+    
+    REQUIRED PARAMETERS:
+      sueldo_base (float): Sueldo base mensual del trabajador.
+      dias_trabajados (int): Número de días trabajados en el mes (default 30).
+      horas_extras (float): Valor de horas extras ganadas en el mes.
+    """
+    return calcular_rol_pagos(sueldo_base, dias_trabajados, horas_extras)
+
+@mcp.tool()
+def parsear_xml_sri_mcp(xml_crudo: str) -> dict:
+    """
+    Parsea una factura electrónica del SRI (XML) y extrae información relevante sin enviar el XML completo al LLM.
+    
+    REQUIRED PARAMETERS:
+      xml_crudo (str): Contenido XML de la factura electrónica.
+    """
+    return parsear_xml_sri(xml_crudo)
+
+@mcp.tool()
+def generar_estructura_ats_mcp(compras: list, ventas: list) -> str:
+    """
+    Genera el XML del Anexo Transaccional Simplificado (ATS) en base a listas de transacciones.
+    
+    REQUIRED PARAMETERS:
+      compras (list): Lista de objetos/diccionarios con los detalles de compras.
+      ventas (list): Lista de objetos/diccionarios con los detalles de ventas.
+    """
+    return generar_estructura_ats(compras, ventas)
+
+@mcp.tool()
+def analizar_identificacion_y_plazos_mcp(identificacion: str) -> dict:
+    """
+    Valida una cédula o RUC ecuatoriano e infiere los plazos máximos de declaración según el 9no dígito.
+    
+    REQUIRED PARAMETERS:
+      identificacion (str): Cédula de 10 dígitos o RUC de 13 dígitos.
+    """
+    return analizar_identificacion_y_plazos(identificacion)
+
+@mcp.tool()
+def verificar_estado_tributario_mcp(ruc: str) -> dict:
+    """
+    Verifica el estado tributario de un RUC (régimen, si es RIMPE, o Agente de Retención).
+    
+    REQUIRED PARAMETERS:
+      ruc (str): RUC de 13 dígitos.
+    """
+    return verificar_estado_tributario(ruc)
+
+@mcp.tool()
+def consultar_estado_sri_mcp(ambiente: str = "pruebas") -> dict:
+    """
+    Realiza un ping a los servidores del SRI para verificar si el web service está online.
+    
+    REQUIRED PARAMETERS:
+      ambiente (str): "pruebas" o "produccion".
+    """
+    return consultar_estado_sri(ambiente)
+
+@mcp.tool()
+def generar_pdf_ride_mcp(xml_factura: str) -> str:
+    """
+    Genera un PDF RIDE base64 inyectando los datos de la factura XML proporcionada.
+    
+    REQUIRED PARAMETERS:
+      xml_factura (str): Contenido XML de la factura electrónica.
+    """
+    return generar_pdf_ride(xml_factura)
+
+
+# ==============================================================================
 # Punto de entrada
 # ==============================================================================
 
