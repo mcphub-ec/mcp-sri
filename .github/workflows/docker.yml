@@ -1,18 +1,15 @@
 name: Docker Publish
 
 on:
-  release:
-    types: [published]
-  push:
-    branches: [ main ]
-    paths:
-      - '**/*.py'
-      - 'Dockerfile'
-      - 'requirements.txt'
+  workflow_dispatch:
+    # ⚠️  DESACTIVADO TEMPORALMENTE
+    # Los triggers automáticos (push/release) están pausados
+    # hasta configurar GHCR_TOKEN y registry correctamente.
+    # Ver instrucciones en: docs/ci-setup.md
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/mcp-sri
+  IMAGE_NAME: ${{ github.repository_owner }}/mcp-${{ github.event.repository.name }}
 
 jobs:
   build-and-push-image:
@@ -48,3 +45,4 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+

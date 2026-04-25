@@ -1,10 +1,11 @@
 name: CI / Lint & Test
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:
+    # ⚠️  DESACTIVADO TEMPORALMENTE
+    # Los triggers automáticos (push/pull_request) están pausados
+    # hasta configurar el entorno CI correctamente.
+    # Ver instrucciones en: docs/ci-setup.md
 
 jobs:
   lint:
@@ -27,3 +28,4 @@ jobs:
     - name: Security scan with Bandit
       run: |
         bandit -r . -x ./certs,./tests -ll
+
