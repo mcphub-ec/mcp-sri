@@ -15,6 +15,7 @@ from cryptography.hazmat.primitives.serialization import pkcs12, Encoding
 from cryptography.hazmat.primitives.hashes import SHA256, SHA1
 from cryptography.hazmat.primitives.asymmetric import padding as asym_padding
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
+from cryptography.hazmat.backends import default_backend
 from cryptography.x509 import Certificate
 from zeep import Client as ZeepClient
 from zeep.transports import Transport
