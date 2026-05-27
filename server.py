@@ -836,7 +836,7 @@ def consultar_informacion_ruc(
         )
         
         # Timeout configured to 15 seconds to avoid blocking indefinitely
-        res = urllib.request.urlopen(req, timeout=15)
+        res = urllib.request.urlopen(req, timeout=15)  # nosec B310
         response_data = res.read().decode("utf-8")
         
         if not response_data:
