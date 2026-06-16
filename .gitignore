@@ -54,3 +54,10 @@ Thumbs.db
 .beads/
 .dolt/
 *.db
+
+# Certificados — NUNCA commitear (bd issue mcphub-vjj)
+certs/
+*.p12
+*.pfx
+*.pem
+*.key
