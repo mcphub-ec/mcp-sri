@@ -115,7 +115,7 @@ from services.core import (
 
 mcp = FastMCP(
     "SRI Electronic Billing",
-    host=os.getenv("MCP_HOST", "0.0.0.0"),
+    host=os.getenv("MCP_HOST", "0.0.0.0"),  # nosec B104 — configurable via MCP_HOST env
     port=int(os.getenv("MCP_PORT", "8002")),
     instructions=(
         "MCP server for direct SRI Ecuador electronic billing. "
