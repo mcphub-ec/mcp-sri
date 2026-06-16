@@ -362,6 +362,11 @@ def firmar_xml(
             cert_b64 = base64.b64encode(f.read()).decode()
             
         logger.info("Delegando firma XAdES-BES al microservicio Java...")
+        # SECURITY (mcphub-5ub): enviar X-Signing-Key en el header para que el
+        # microservicio rechace requests sin autenticación. La clave se lee de
+        # SIGNING_API_KEY (debe coincidir con la configurada en el Java service).
+        signing_api_key = os.getenv("SIGNING_API_KEY", "")
+        headers = {"X-Signing-Key": signing_api_key} if signing_api_key else {}
         resp = httpx.post(
             f"{java_service_url}/api/v1/signature/sign",
             json={
@@ -369,6 +374,7 @@ def firmar_xml(
                 "certificateBase64": cert_b64,
                 "certificatePassword": p12_pass
             },
+            headers=headers,
             timeout=10.0
         )
         

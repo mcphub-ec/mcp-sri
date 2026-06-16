@@ -1,22 +1,37 @@
 version: '3.8'
 
+# Outer docker-compose for the SRI MCP.
+# Spawns two services:
+#   1. signing-service: Spring Boot Java app that signs XML with the .p12 cert.
+#   2. mcp-server:      Python FastMCP that fronts the signing-service.
+#
+# The signing-service is NOT exposed to the host (internal network only) to
+# prevent direct network access to a service that has CORS=* and no auth.
+# Communication is via the internal Docker network on port 18081.
+#
+# Reference: bd issues mcphub-92k, mcphub-5ub.
 services:
   signing-service:
     build:
       context: ./signing-service
       dockerfile: Dockerfile
     container_name: sri_signing_java_service
-    ports:
-      - "18081:18081"
+    expose:
+      - "18081"            # only on the internal network, NOT published to host
     restart: unless-stopped
     environment:
       - SERVER_PORT=18081
       - SPRING_PROFILES_ACTIVE=prod
+      - SIGNING_API_KEY=${SIGNING_API_KEY:-changeme}    # require a real key in .env
+      - SIGNING_ALLOWED_ORIGINS=${SIGNING_ALLOWED_ORIGINS:-http://mcp-server:8000}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:18081/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:18081/api/v1/signature/health"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 40s
+    networks:
+      - sri-internal
 
   mcp-server:
     build:
@@ -24,11 +39,24 @@ services:
       dockerfile: Dockerfile
     container_name: sri_mcp_python_server
     ports:
-      - "8000:8000"
+      - "${MCP_PORT:-8002}:8002"
     restart: unless-stopped
     environment:
+      - MCP_HOST=0.0.0.0
+      - MCP_PORT=8002
       - SIGNING_SERVICE_URL=http://signing-service:18081
+      - SIGNING_API_KEY=${SIGNING_API_KEY:-changeme}    # must match signing-service
       # Se asume que el usuario inyectará el resto de las variables mediante un .env o directamente
     depends_on:
       signing-service:
         condition: service_healthy
+    networks:
+      - sri-internal
+      - sri-external
+
+networks:
+  sri-internal:
+    driver: bridge
+    internal: false       # internal=false but signing-service only exposes 18081 (no host port)
+  sri-external:
+    driver: bridge
